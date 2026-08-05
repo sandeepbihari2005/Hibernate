@@ -1,1 +1,52 @@
+name: Daily Random Commit
 
+on:
+  schedule:
+    # Daily 9:00 AM IST (03:30 UTC)
+    - cron: "30 3 * * *"
+
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+jobs:
+  daily-random-commit:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Generate random update
+        run: |
+          MESSAGES=(
+            "Update project files"
+            "Minor improvements"
+            "Daily maintenance"
+            "Update development log"
+            "Refactor project notes"
+            "Improve documentation"
+            "Routine project update"
+            "Clean up project files"
+            "Update progress log"
+            "Small project improvements"
+          )
+
+          RANDOM_INDEX=$((RANDOM % ${#MESSAGES[@]}))
+          MESSAGE="${MESSAGES[$RANDOM_INDEX]}"
+
+          echo "$(date -u '+%Y-%m-%d %H:%M:%S UTC') - $MESSAGE" >> activity-log.txt
+
+          echo "COMMIT_MESSAGE=$MESSAGE" >> $GITHUB_ENV
+
+      - name: Commit and push
+        run: |
+          git config user.name "sandeepbihari2005"
+          git config user.email "sandeepbihari2005@gmail.com"
+
+          git add activity-log.txt
+
+          git commit -m "$COMMIT_MESSAGE" || exit 0
+
+          git push
