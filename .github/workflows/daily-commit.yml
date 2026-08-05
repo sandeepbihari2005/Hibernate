@@ -1,8 +1,8 @@
-name: Daily Random Commit
+name: Daily Random Commits
 
 on:
   schedule:
-    # Daily 9:00 AM IST (03:30 UTC)
+    # Daily around 9:00 AM IST
     - cron: "30 3 * * *"
 
   workflow_dispatch:
@@ -11,15 +11,19 @@ permissions:
   contents: write
 
 jobs:
-  daily-random-commit:
+  daily-random-commits:
     runs-on: ubuntu-latest
 
     steps:
       - name: Checkout repository
         uses: actions/checkout@v4
 
-      - name: Generate random update
+      - name: Create random commits
+        shell: bash
         run: |
+          git config user.name "sandeepbihari2005"
+          git config user.email "sandeepbihari2005@gmail.com"
+
           MESSAGES=(
             "Update project files"
             "Minor improvements"
@@ -31,22 +35,29 @@ jobs:
             "Clean up project files"
             "Update progress log"
             "Small project improvements"
+            "Code cleanup"
+            "Project maintenance"
+            "Documentation update"
+            "Development progress"
+            "Minor fixes"
           )
 
-          RANDOM_INDEX=$((RANDOM % ${#MESSAGES[@]}))
-          MESSAGE="${MESSAGES[$RANDOM_INDEX]}"
+          # Random number between 3 and 12
+          COMMIT_COUNT=$((RANDOM % 10 + 3))
 
-          echo "$(date -u '+%Y-%m-%d %H:%M:%S UTC') - $MESSAGE" >> activity-log.txt
+          echo "Creating $COMMIT_COUNT commits today..."
 
-          echo "COMMIT_MESSAGE=$MESSAGE" >> $GITHUB_ENV
+          for ((i=1; i<=COMMIT_COUNT; i++))
+          do
+            RANDOM_INDEX=$((RANDOM % ${#MESSAGES[@]}))
+            MESSAGE="${MESSAGES[$RANDOM_INDEX]}"
 
-      - name: Commit and push
-        run: |
-          git config user.name "sandeepbihari2005"
-          git config user.email "sandeepbihari2005@gmail.com"
+            echo "$(date -u '+%Y-%m-%d %H:%M:%S UTC') - Update $i - $MESSAGE - $RANDOM" >> activity-log.txt
 
-          git add activity-log.txt
+            git add activity-log.txt
+            git commit -m "$MESSAGE"
 
-          git commit -m "$COMMIT_MESSAGE" || exit 0
+            sleep 1
+          done
 
           git push
